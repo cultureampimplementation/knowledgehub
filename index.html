@@ -3,6 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <title>Submit Info</title>
+  <style>
+    table, th, td { border: 1px solid black; border-collapse: collapse; padding: 6px; }
+  </style>
 </head>
 <body>
   <h1>Submit your info</h1>
@@ -14,23 +17,77 @@
   </form>
   <p id="response"></p>
 
+  <h2>Previous Submissions</h2>
+  <div id="submissionList">Loading...</div>
+
   <script>
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw9J5AnKEQDozmX5H5-bqe7JM7MWs4VSGiASGFKJ1rCIhPdmz1AStSpGv964pRQsbeuhg/exec";
+
+    async function loadSubmissions() {
+      try {
+        const res = await fetch(SCRIPT_URL);
+        const data = await res.json();
+        const table = document.createElement('table');
+        const thead = document.createElement('thead');
+        const tbody = document.createElement('tbody');
+
+        if (data.length === 0) {
+          document.getElementById('submissionList').textContent = "No submissions yet.";
+          return;
+        }
+
+        // Create header row
+        const headerRow = document.createElement('tr');
+        Object.keys(data[0]).forEach(key => {
+          const th = document.createElement('th');
+          th.textContent = key;
+          headerRow.appendChild(th);
+        });
+        thead.appendChild(headerRow);
+
+        // Create data rows
+        data.forEach(row => {
+          const tr = document.createElement('tr');
+          Object.values(row).forEach(val => {
+            const td = document.createElement('td');
+            td.textContent = val;
+            tr.appendChild(td);
+          });
+          tbody.appendChild(tr);
+        });
+
+        table.appendChild(thead);
+        table.appendChild(tbody);
+        const container = document.getElementById('submissionList');
+        container.innerHTML = '';
+        container.appendChild(table);
+
+      } catch (err) {
+        document.getElementById('submissionList').textContent = "❌ Failed to load submissions.";
+        console.error(err);
+      }
+    }
+
     document.addEventListener("DOMContentLoaded", function () {
+      loadSubmissions();
+
       document.getElementById('myForm').addEventListener('submit', async function (e) {
         e.preventDefault();
-        console.log("✅ Form submit triggered");
-
         const form = e.target;
-        const formData = new FormData(form); // Send as FormData to avoid CORS
+        const formData = new FormData(form);
 
         try {
-          const res = await fetch("https://script.google.com/macros/s/AKfycbw9J5AnKEQDozmX5H5-bqe7JM7MWs4VSGiASGFKJ1rCIhPdmz1AStSpGv964pRQsbeuhg/exec", {
+          const res = await fetch(SCRIPT_URL, {
             method: "POST",
             body: formData
           });
 
           const text = await res.text();
           document.getElementById('response').textContent = text;
+
+          // Clear form & refresh list
+          form.reset();
+          setTimeout(loadSubmissions, 1000); // slight delay to allow backend to update
         } catch (err) {
           console.error("❌ Error submitting form:", err);
           document.getElementById('response').textContent = "❌ Submission failed.";
