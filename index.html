@@ -18,6 +18,7 @@
 
     .tab-section {
       margin-top: 20px;
+      display: none;
     }
 
     table, th, td {
@@ -33,16 +34,17 @@
 </head>
 <body>
 
-  <h1>Knowledge Hub</h1>
+  <h1>Project Hub</h1>
 
   <div>
-    <button onclick="showTab('submissions')">📄 Submissions</button>
-    <button onclick="showTab('gantt')">📊 Gantt Chart</button>
+    <button onclick="showTab('submissions')">📄 Knowledge Hub</button>
+    <button onclick="showTab('gantt')">📊 Visual Project Plan</button>
+    <button onclick="showTab('meetings')">📅 Upcoming Meetings</button>
   </div>
 
   <!-- Submissions Tab -->
-  <div id="submissions" class="tab-section">
-    <h2>Submit your info</h2>
+  <div id="submissions" class="tab-section" style="display: block;">
+    <h2>Submit your questions</h2>
     <form id="myForm">
       <label>Name: <input name="name" required></label><br><br>
       <label>Message:<br><textarea name="message" required></textarea></label><br><br>
@@ -50,14 +52,20 @@
     </form>
     <p id="response"></p>
 
-    <h3>Previous Submissions</h3>
+    <h3>Previous Questions</h3>
     <div id="submissionList">Loading...</div>
   </div>
 
   <!-- Gantt Chart Tab -->
-  <div id="gantt" class="tab-section" style="display: none;">
+  <div id="gantt" class="tab-section">
     <h2>Project Timeline</h2>
     <div id="ganttTable">Loading Gantt chart...</div>
+  </div>
+
+  <!-- Upcoming Meetings Tab -->
+  <div id="meetings" class="tab-section">
+    <h2>Upcoming Meetings</h2>
+    <div id="meetingsTable">Loading upcoming meetings...</div>
   </div>
 
   <script>
@@ -71,8 +79,10 @@
     }
 
     function showTab(tabId) {
-      document.getElementById("submissions").style.display = tabId === "submissions" ? "block" : "none";
-      document.getElementById("gantt").style.display = tabId === "gantt" ? "block" : "none";
+      const sections = document.querySelectorAll(".tab-section");
+      sections.forEach(section => {
+        section.style.display = section.id === tabId ? "block" : "none";
+      });
     }
 
     async function loadSubmissions() {
@@ -86,33 +96,7 @@
           return;
         }
 
-        const table = document.createElement('table');
-        const thead = document.createElement('thead');
-        const tbody = document.createElement('tbody');
-
-        const headers = Object.keys(data[0]);
-        const headerRow = document.createElement('tr');
-        headers.forEach(h => {
-          const th = document.createElement('th');
-          th.textContent = h;
-          headerRow.appendChild(th);
-        });
-        thead.appendChild(headerRow);
-
-        data.forEach(row => {
-          const tr = document.createElement('tr');
-          headers.forEach(h => {
-            const td = document.createElement('td');
-            td.textContent = row[h];
-            tr.appendChild(td);
-          });
-          tbody.appendChild(tr);
-        });
-
-        table.appendChild(thead);
-        table.appendChild(tbody);
-        document.getElementById('submissionList').innerHTML = '';
-        document.getElementById('submissionList').appendChild(table);
+        renderTable(data, "submissionList");
       } catch (err) {
         document.getElementById('submissionList').textContent = "❌ Failed to load submissions.";
         console.error(err);
@@ -130,37 +114,60 @@
           return;
         }
 
-        const table = document.createElement('table');
-        const thead = document.createElement('thead');
-        const tbody = document.createElement('tbody');
-
-        const headers = Object.keys(data[0]);
-        const headerRow = document.createElement('tr');
-        headers.forEach(h => {
-          const th = document.createElement('th');
-          th.textContent = h;
-          headerRow.appendChild(th);
-        });
-        thead.appendChild(headerRow);
-
-        data.forEach(row => {
-          const tr = document.createElement('tr');
-          headers.forEach(h => {
-            const td = document.createElement('td');
-            td.textContent = row[h];
-            tr.appendChild(td);
-          });
-          tbody.appendChild(tr);
-        });
-
-        table.appendChild(thead);
-        table.appendChild(tbody);
-        document.getElementById('ganttTable').innerHTML = '';
-        document.getElementById('ganttTable').appendChild(table);
+        renderTable(data, "ganttTable");
       } catch (err) {
         document.getElementById('ganttTable').textContent = "❌ Failed to load Gantt chart.";
         console.error(err);
       }
+    }
+
+    async function loadMeetings() {
+      try {
+        const res = await fetch(`${SCRIPT_BASE}?sheetId=${SHEET_ID}&mode=meetings`);
+        const text = await res.text();
+        const data = JSON.parse(text);
+
+        if (!Array.isArray(data) || data.length === 0) {
+          document.getElementById('meetingsTable').textContent = "No meetings found.";
+          return;
+        }
+
+        renderTable(data, "meetingsTable");
+      } catch (err) {
+        document.getElementById('meetingsTable').textContent = "❌ Failed to load meetings.";
+        console.error(err);
+      }
+    }
+
+    function renderTable(data, containerId) {
+      const table = document.createElement('table');
+      const thead = document.createElement('thead');
+      const tbody = document.createElement('tbody');
+
+      const headers = Object.keys(data[0]);
+      const headerRow = document.createElement('tr');
+      headers.forEach(h => {
+        const th = document.createElement('th');
+        th.textContent = h;
+        headerRow.appendChild(th);
+      });
+      thead.appendChild(headerRow);
+
+      data.forEach(row => {
+        const tr = document.createElement('tr');
+        headers.forEach(h => {
+          const td = document.createElement('td');
+          td.textContent = row[h];
+          tr.appendChild(td);
+        });
+        tbody.appendChild(tr);
+      });
+
+      table.appendChild(thead);
+      table.appendChild(tbody);
+      const container = document.getElementById(containerId);
+      container.innerHTML = '';
+      container.appendChild(table);
     }
 
     function setupForm() {
@@ -190,6 +197,7 @@
     document.addEventListener("DOMContentLoaded", () => {
       loadSubmissions();
       loadGantt();
+      loadMeetings(); // load third tab data
       setupForm();
     });
   </script>
