@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Submit Info</title>
+</head>
+<body>
+  <h1>Submit your info</h1>
+  <form id="myForm">
+    <label>Name: <input name="name" required></label><br>
+    <label>Email: <input name="email" type="email" required></label><br>
+    <label>Message:<br><textarea name="message" required></textarea></label><br>
+    <button type="submit">Send</button>
+  </form>
+  <p id="response"></p>
+
+  <script>
+    document.getElementById('myForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const form = e.target;
+
+      const data = {
+        name: form.name.value,
+        email: form.email.value,
+        message: form.message.value
+      };
+
+      const res = await fetch("YOUR_WEB_APP_URL_HERE", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data)
+      });
+
+      const text = await res.text();
+      document.getElementById('response').textContent = text;
+    });
+  </script>
+</body>
+</html>
