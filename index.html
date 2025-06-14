@@ -4,7 +4,14 @@
   <meta charset="UTF-8">
   <title>Submit Info</title>
   <style>
-    table, th, td { border: 1px solid black; border-collapse: collapse; padding: 6px; }
+    table, th, td {
+      border: 1px solid black;
+      border-collapse: collapse;
+      padding: 6px;
+    }
+    th {
+      background-color: #f0f0f0;
+    }
   </style>
 </head>
 <body>
@@ -21,11 +28,24 @@
   <div id="submissionList">Loading...</div>
 
   <script>
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw9J5AnKEQDozmX5H5-bqe7JM7MWs4VSGiASGFKJ1rCIhPdmz1AStSpGv964pRQsbeuhg/exec";
+    // Get ?sheetId=... from the URL
+    function getSheetIdFromUrl() {
+      const params = new URLSearchParams(window.location.search);
+      return params.get("sheetId");
+    }
+
+    const SHEET_ID = getSheetIdFromUrl();
+    if (!SHEET_ID) {
+      document.body.innerHTML = "<p style='color:red'>❌ No sheetId provided in the URL.</p>";
+      throw new Error("Missing sheetId");
+    }
+
+    const SCRIPT_BASE = "https://script.google.com/macros/s/AKfycbw9J5AnKEQDozmX5H5-bqe7JM7MWs4VSGiASGFKJ1rCIhPdmz1AStSpGv964pRQsbeuhg/exec";
+    const GET_URL = `${SCRIPT_BASE}?sheetId=${SHEET_ID}`;
 
     async function loadSubmissions() {
       try {
-        const res = await fetch(SCRIPT_URL);
+        const res = await fetch(GET_URL);
         const data = await res.json();
         const table = document.createElement('table');
         const thead = document.createElement('thead');
@@ -75,9 +95,10 @@
         e.preventDefault();
         const form = e.target;
         const formData = new FormData(form);
+        formData.append("sheetId", SHEET_ID); // Pass sheetId to backend
 
         try {
-          const res = await fetch(SCRIPT_URL, {
+          const res = await fetch(SCRIPT_BASE, {
             method: "POST",
             body: formData
           });
@@ -85,9 +106,8 @@
           const text = await res.text();
           document.getElementById('response').textContent = text;
 
-          // Clear form & refresh list
           form.reset();
-          setTimeout(loadSubmissions, 1000); // slight delay to allow backend to update
+          setTimeout(loadSubmissions, 1000); // Refresh table after new submission
         } catch (err) {
           console.error("❌ Error submitting form:", err);
           document.getElementById('response').textContent = "❌ Submission failed.";
