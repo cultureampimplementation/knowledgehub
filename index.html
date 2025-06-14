@@ -47,13 +47,15 @@
       try {
         const res = await fetch(GET_URL);
         const text = await res.text();
-      try {
-        const data = JSON.parse(text);
-        // continue rendering table...
-      } catch (err) {
-        document.getElementById('submissionList').textContent = "❌ Could not load data: " + text;
-        throw new Error("Invalid response: " + text);
-      }
+
+        let data;
+        try {
+          data = JSON.parse(text);
+        } catch (err) {
+          document.getElementById('submissionList').textContent = "❌ Could not load data: " + text;
+          throw new Error("Invalid response: " + text);
+        }
+
         const table = document.createElement('table');
         const thead = document.createElement('thead');
         const tbody = document.createElement('tbody');
