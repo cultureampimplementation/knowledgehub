@@ -21,17 +21,12 @@
         console.log("✅ Form submit triggered");
 
         const form = e.target;
-        const data = {
-          name: form.name.value,
-          email: form.email.value,
-          message: form.message.value
-        };
+        const formData = new FormData(form); // Send as FormData to avoid CORS
 
         try {
           const res = await fetch("https://script.google.com/macros/s/AKfycbw9J5AnKEQDozmX5H5-bqe7JM7MWs4VSGiASGFKJ1rCIhPdmz1AStSpGv964pRQsbeuhg/exec", {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(data)
+            body: formData
           });
 
           const text = await res.text();
