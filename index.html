@@ -15,24 +15,32 @@
   <p id="response"></p>
 
   <script>
-    document.getElementById('myForm').addEventListener('submit', async function(e) {
-      e.preventDefault();
-      const form = e.target;
+    document.addEventListener("DOMContentLoaded", function () {
+      document.getElementById('myForm').addEventListener('submit', async function (e) {
+        e.preventDefault();
+        console.log("✅ Form submit triggered");
 
-      const data = {
-        name: form.name.value,
-        email: form.email.value,
-        message: form.message.value
-      };
+        const form = e.target;
+        const data = {
+          name: form.name.value,
+          email: form.email.value,
+          message: form.message.value
+        };
 
-      const res = await fetch("https://script.google.com/macros/s/AKfycbw9J5AnKEQDozmX5H5-bqe7JM7MWs4VSGiASGFKJ1rCIhPdmz1AStSpGv964pRQsbeuhg/exec", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data)
+        try {
+          const res = await fetch("https://script.google.com/macros/s/AKfycbw9J5AnKEQDozmX5H5-bqe7JM7MWs4VSGiASGFKJ1rCIhPdmz1AStSpGv964pRQsbeuhg/exec", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(data)
+          });
+
+          const text = await res.text();
+          document.getElementById('response').textContent = text;
+        } catch (err) {
+          console.error("❌ Error submitting form:", err);
+          document.getElementById('response').textContent = "❌ Submission failed.";
+        }
       });
-
-      const text = await res.text();
-      document.getElementById('response').textContent = text;
     });
   </script>
 </body>
