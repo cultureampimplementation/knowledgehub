@@ -2,85 +2,108 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Submit Info</title>
+  <title>Knowledge Hub</title>
   <style>
+    body {
+      font-family: sans-serif;
+      padding: 20px;
+    }
+
+    button {
+      margin-right: 10px;
+      padding: 8px 16px;
+      font-size: 14px;
+      cursor: pointer;
+    }
+
+    .tab-section {
+      margin-top: 20px;
+    }
+
     table, th, td {
-      border: 1px solid black;
+      border: 1px solid #ccc;
       border-collapse: collapse;
       padding: 6px;
     }
+
     th {
       background-color: #f0f0f0;
     }
   </style>
 </head>
 <body>
-  <h1>Submit your info</h1>
-  <form id="myForm">
-    <label>Name: <input name="name" required></label><br>
-    <label>Email: <input name="email" type="email" required></label><br>
-    <label>Message:<br><textarea name="message" required></textarea></label><br>
-    <button type="submit">Send</button>
-  </form>
-  <p id="response"></p>
 
-  <h2>Previous Submissions</h2>
-  <div id="submissionList">Loading...</div>
+  <h1>Knowledge Hub</h1>
+
+  <div>
+    <button onclick="showTab('submissions')">📄 Submissions</button>
+    <button onclick="showTab('gantt')">📊 Gantt Chart</button>
+  </div>
+
+  <!-- Submissions Tab -->
+  <div id="submissions" class="tab-section">
+    <h2>Submit your info</h2>
+    <form id="myForm">
+      <label>Name: <input name="name" required></label><br><br>
+      <label>Message:<br><textarea name="message" required></textarea></label><br><br>
+      <button type="submit">Send</button>
+    </form>
+    <p id="response"></p>
+
+    <h3>Previous Submissions</h3>
+    <div id="submissionList">Loading...</div>
+  </div>
+
+  <!-- Gantt Chart Tab -->
+  <div id="gantt" class="tab-section" style="display: none;">
+    <h2>Project Timeline</h2>
+    <div id="ganttTable">Loading Gantt chart...</div>
+  </div>
 
   <script>
-    // Get ?sheetId=... from the URL
-    function getSheetIdFromUrl() {
-      const params = new URLSearchParams(window.location.search);
-      return params.get("sheetId");
-    }
+    const params = new URLSearchParams(window.location.search);
+    const SHEET_ID = params.get("sheetId");
+    const SCRIPT_BASE = "https://script.google.com/macros/s/AKfycbw9J5AnKEQDozmX5H5-bqe7JM7MWs4VSGiASGFKJ1rCIhPdmz1AStSpGv964pRQsbeuhg/exec";
 
-    const SHEET_ID = getSheetIdFromUrl();
     if (!SHEET_ID) {
       document.body.innerHTML = "<p style='color:red'>❌ No sheetId provided in the URL.</p>";
       throw new Error("Missing sheetId");
     }
 
-    const SCRIPT_BASE = "https://script.google.com/macros/s/AKfycbw9J5AnKEQDozmX5H5-bqe7JM7MWs4VSGiASGFKJ1rCIhPdmz1AStSpGv964pRQsbeuhg/exec";
-    const GET_URL = `${SCRIPT_BASE}?sheetId=${SHEET_ID}`;
+    function showTab(tabId) {
+      document.getElementById("submissions").style.display = tabId === "submissions" ? "block" : "none";
+      document.getElementById("gantt").style.display = tabId === "gantt" ? "block" : "none";
+    }
 
     async function loadSubmissions() {
       try {
-        const res = await fetch(GET_URL);
+        const res = await fetch(`${SCRIPT_BASE}?sheetId=${SHEET_ID}`);
         const text = await res.text();
-        console.log("📝 Raw response:", text); 
-
-        let data;
-        try {
-          data = JSON.parse(text);
-        } catch (err) {
-          document.getElementById('submissionList').textContent = "❌ Could not load data: " + text;
-          throw new Error("Invalid response: " + text);
-        }
-
-        const table = document.createElement('table');
-        const thead = document.createElement('thead');
-        const tbody = document.createElement('tbody');
+        const data = JSON.parse(text);
 
         if (data.length === 0) {
           document.getElementById('submissionList').textContent = "No submissions yet.";
           return;
         }
 
-        // Create header row
+        const table = document.createElement('table');
+        const thead = document.createElement('thead');
+        const tbody = document.createElement('tbody');
+
+        const headers = Object.keys(data[0]);
         const headerRow = document.createElement('tr');
-        Object.keys(data[0]).forEach(key => {
+        headers.forEach(h => {
           const th = document.createElement('th');
-          th.textContent = key;
+          th.textContent = h;
           headerRow.appendChild(th);
         });
         thead.appendChild(headerRow);
 
-        // Create data rows
         data.forEach(row => {
           const tr = document.createElement('tr');
-          Object.values(row).forEach(val => {
+          headers.forEach(h => {
             const td = document.createElement('td');
-            td.textContent = val;
+            td.textContent = row[h];
             tr.appendChild(td);
           });
           tbody.appendChild(tr);
@@ -88,42 +111,88 @@
 
         table.appendChild(thead);
         table.appendChild(tbody);
-        const container = document.getElementById('submissionList');
-        container.innerHTML = '';
-        container.appendChild(table);
-
+        document.getElementById('submissionList').innerHTML = '';
+        document.getElementById('submissionList').appendChild(table);
       } catch (err) {
         document.getElementById('submissionList').textContent = "❌ Failed to load submissions.";
         console.error(err);
       }
     }
 
-    document.addEventListener("DOMContentLoaded", function () {
-      loadSubmissions();
+    async function loadGantt() {
+      try {
+        const res = await fetch(`${SCRIPT_BASE}?sheetId=${SHEET_ID}&mode=gantt`);
+        const text = await res.text();
+        const data = JSON.parse(text);
 
+        if (!Array.isArray(data) || data.length === 0) {
+          document.getElementById('ganttTable').textContent = "No Gantt data available.";
+          return;
+        }
+
+        const table = document.createElement('table');
+        const thead = document.createElement('thead');
+        const tbody = document.createElement('tbody');
+
+        const headers = Object.keys(data[0]);
+        const headerRow = document.createElement('tr');
+        headers.forEach(h => {
+          const th = document.createElement('th');
+          th.textContent = h;
+          headerRow.appendChild(th);
+        });
+        thead.appendChild(headerRow);
+
+        data.forEach(row => {
+          const tr = document.createElement('tr');
+          headers.forEach(h => {
+            const td = document.createElement('td');
+            td.textContent = row[h];
+            tr.appendChild(td);
+          });
+          tbody.appendChild(tr);
+        });
+
+        table.appendChild(thead);
+        table.appendChild(tbody);
+        document.getElementById('ganttTable').innerHTML = '';
+        document.getElementById('ganttTable').appendChild(table);
+      } catch (err) {
+        document.getElementById('ganttTable').textContent = "❌ Failed to load Gantt chart.";
+        console.error(err);
+      }
+    }
+
+    function setupForm() {
       document.getElementById('myForm').addEventListener('submit', async function (e) {
         e.preventDefault();
         const form = e.target;
         const formData = new FormData(form);
-        formData.append("sheetId", SHEET_ID); // Pass sheetId to backend
+        formData.append("sheetId", SHEET_ID);
 
         try {
           const res = await fetch(SCRIPT_BASE, {
             method: "POST",
             body: formData
           });
-
           const text = await res.text();
           document.getElementById('response').textContent = text;
 
           form.reset();
-          setTimeout(loadSubmissions, 1000); // Refresh table after new submission
+          setTimeout(loadSubmissions, 1000);
         } catch (err) {
-          console.error("❌ Error submitting form:", err);
+          console.error("❌ Submission failed:", err);
           document.getElementById('response').textContent = "❌ Submission failed.";
         }
       });
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      loadSubmissions();
+      loadGantt();
+      setupForm();
     });
   </script>
+
 </body>
 </html>
