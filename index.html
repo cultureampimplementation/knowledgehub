@@ -228,11 +228,68 @@
       });
     }
 
+    async function loadSidebarMeetings(domain) {
+  try {
+    const res = await fetch(`${SCRIPT_BASE}?sheetId=${SHEET_ID}&mode=meetings&domain=${encodeURIComponent(domain)}`);
+    const meetings = await res.json();
+
+    if (!Array.isArray(meetings) || meetings.length === 0) {
+      document.getElementById('upcomingMeetings').textContent = "No upcoming meetings.";
+      return;
+    }
+
+    const grouped = groupByWeek(meetings);
+    renderGroupedMeetings(grouped, "upcomingMeetings");
+  } catch (err) {
+    console.error("❌ Sidebar meetings failed:", err);
+    document.getElementById('upcomingMeetings').textContent = "Failed to load.";
+  }
+}
+
+function groupByWeek(meetings) {
+  const weeks = {};
+  meetings.forEach(m => {
+    const start = new Date(m["Start Time"]);
+    const weekStart = new Date(start);
+    weekStart.setDate(start.getDate() - start.getDay()); // Sunday start
+    const label = weekStart.toISOString().slice(0, 10); // YYYY-MM-DD
+    if (!weeks[label]) weeks[label] = [];
+    weeks[label].push(m);
+  });
+  return weeks;
+}
+
+function renderGroupedMeetings(grouped, containerId) {
+  const container = document.getElementById(containerId);
+  container.innerHTML = "";
+
+  const weekLabels = Object.keys(grouped).sort();
+  weekLabels.forEach(week => {
+    const section = document.createElement("div");
+    section.className = "week-group";
+
+    const h3 = document.createElement("h3");
+    h3.textContent = `Week of ${week}`;
+    section.appendChild(h3);
+
+    grouped[week].forEach(m => {
+      const div = document.createElement("div");
+      div.innerHTML = `<strong>${m.Title}</strong><br>
+        ${m["Start Time"]} → ${m["End Time"]}<br>
+        ${m.Location || ""}`;
+      section.appendChild(div);
+    });
+
+    container.appendChild(section);
+  });
+}
+
     document.addEventListener("DOMContentLoaded", () => {
       loadSubmissions();
       loadGantt();
       loadMeetings(); // load third tab data
       setupForm();
+      loadSidebarMeetings("vesuvius.com");
     });
   </script>
 
