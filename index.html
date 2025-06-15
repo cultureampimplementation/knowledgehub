@@ -304,7 +304,7 @@ function renderGroupedMeetings(grouped, containerId) {
       card.className = "event-card";
       card.innerHTML = `
         <strong>${m.Title}</strong>
-        <div>${m["Start Time"]} → ${m["End Time"]}</div>
+        <div>📅 ${formatDatePretty(m["Start Time"])}</div>
         ${m.Location ? `<div>📍 ${m.Location}</div>` : ""}
       `;
       section.appendChild(card);
@@ -313,7 +313,11 @@ function renderGroupedMeetings(grouped, containerId) {
     container.appendChild(section);
   });
 }
-
+function formatDatePretty(isoString) {
+  const date = new Date(isoString);
+  const options = { weekday: 'short', day: '2-digit', month: 'short' };
+  return date.toLocaleDateString(undefined, options); // uses browser locale
+}
 
     document.addEventListener("DOMContentLoaded", () => {
       loadSubmissions();
