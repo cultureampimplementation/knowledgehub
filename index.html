@@ -30,6 +30,40 @@
     th {
       background-color: #f0f0f0;
     }
+
+    body {
+      font-family: sans-serif;
+      padding: 20px;
+      margin-right: 320px; /* make space for sidebar */
+    }
+    
+    #sidebar {
+      position: fixed;
+      top: 0;
+      right: 0;
+      width: 300px;
+      height: 100vh;
+      overflow-y: auto;
+      background-color: #fafafa;
+      border-left: 1px solid #ccc;
+      padding: 16px;
+      box-shadow: -2px 0 5px rgba(0, 0, 0, 0.05);
+    }
+    
+    .week-group {
+      margin-bottom: 20px;
+    }
+    
+    .week-group h3 {
+      border-bottom: 1px solid #ccc;
+      padding-bottom: 4px;
+      margin-bottom: 8px;
+    }
+    
+    #upcomingMeetings div {
+      margin-bottom: 10px;
+    }
+
   </style>
 </head>
 <body>
