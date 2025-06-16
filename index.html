@@ -255,21 +255,15 @@
       });
     }
 
-    async function loadSidebarMeetings(domain) {
+async function loadDomainAndMeetings() {
   try {
-    const res = await fetch(`${SCRIPT_BASE}?sheetId=${SHEET_ID}&mode=meetings&domain=${encodeURIComponent(domain)}`);
-    const meetings = await res.json();
-
-    if (!Array.isArray(meetings) || meetings.length === 0) {
-      document.getElementById('upcomingMeetings').textContent = "No upcoming meetings.";
-      return;
-    }
-
-    const grouped = groupByWeek(meetings);
-    renderGroupedMeetings(grouped, "upcomingMeetings");
+    const res = await fetch(`${SCRIPT_BASE}?sheetId=${SHEET_ID}&mode=domain`);
+    const { domain } = await res.json();
+    if (!domain) throw new Error("No domain returned.");
+    loadSidebarMeetings(domain);
   } catch (err) {
-    console.error("❌ Sidebar meetings failed:", err);
-    document.getElementById('upcomingMeetings').textContent = "Failed to load.";
+    console.error("❌ Failed to load domain:", err);
+    document.getElementById("upcomingMeetings").textContent = "❌ Couldn't load domain.";
   }
 }
 
@@ -324,7 +318,7 @@ function formatDatePretty(isoString) {
       loadGantt();
       loadMeetings(); // load third tab data
       setupForm();
-      loadSidebarMeetings("vesuvius.com");
+      loadDomainAndMeetings();
     });
   </script>
 
