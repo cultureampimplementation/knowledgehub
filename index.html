@@ -258,7 +258,10 @@
 async function loadDomainAndMeetings() {
   try {
     const res = await fetch(`${SCRIPT_BASE}?sheetId=${SHEET_ID}&mode=domain`);
-    const { domain } = await res.json();
+    const text = await res.text(); // 👈 read as text
+    console.log("Domain fetch raw response:", text);
+    
+    const { domain } = JSON.parse(text);
     if (!domain) throw new Error("No domain returned.");
     loadSidebarMeetings(domain);
   } catch (err) {
