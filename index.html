@@ -146,6 +146,24 @@
       });
     }
 
+    async function loadSidebarMeetings(domain) {
+  try {
+    const res = await fetch(`${SCRIPT_BASE}?sheetId=${SHEET_ID}&mode=meetings&domain=${encodeURIComponent(domain)}`);
+    const meetings = await res.json();
+
+    if (!Array.isArray(meetings) || meetings.length === 0) {
+      document.getElementById('upcomingMeetings').textContent = "No upcoming meetings.";
+      return;
+    }
+
+    const grouped = groupByWeek(meetings);
+    renderGroupedMeetings(grouped, "upcomingMeetings");
+  } catch (err) {
+    console.error("❌ Sidebar meetings failed:", err);
+    document.getElementById('upcomingMeetings').textContent = "❌ Failed to load.";
+  }
+}
+
     async function loadSubmissions() {
       try {
         const res = await fetch(`${SCRIPT_BASE}?sheetId=${SHEET_ID}`);
