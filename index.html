@@ -91,6 +91,29 @@
   display: block;
   margin-bottom: 4px;
 }
+
+    #agendaTiles {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.agenda-tile {
+  background: #eef2ff;
+  border: 1px solid #c7d2fe;
+  border-radius: 8px;
+  padding: 8px 12px;
+  cursor: grab;
+  user-select: none;
+  font-size: 14px;
+  transition: background 0.2s;
+}
+
+.agenda-tile:active {
+  cursor: grabbing;
+  background: #dbeafe;
+}
   </style>
 </head>
 <body>
@@ -115,6 +138,13 @@
 
     <h3>Previous Questions</h3>
     <div id="submissionList">Loading...</div>
+    <h3>Drag agenda items into a meeting</h3>
+    <div id="agendaTiles">
+      <div class="agenda-tile" draggable="true">🧠 Strategy</div>
+      <div class="agenda-tile" draggable="true">📈 Metrics</div>
+      <div class="agenda-tile" draggable="true">👥 People Updates</div>
+      <div class="agenda-tile" draggable="true">⚙️ Product Demos</div>
+    </div>
   </div>
 
   <!-- Gantt Chart Tab -->
@@ -310,6 +340,7 @@ function renderGroupedMeetings(grouped, containerId) {
 
     container.appendChild(section);
   });
+  enableDragAndDrop();
 }
 function formatDatePretty(isoString) {
   const date = new Date(isoString);
@@ -323,6 +354,40 @@ function formatDatePretty(isoString) {
       setupForm();
       loadDomainAndMeetings();
     });
+
+  function enableDragAndDrop() {
+  document.querySelectorAll('.agenda-tile').forEach(tile => {
+    tile.addEventListener('dragstart', e => {
+      e.dataTransfer.setData('text/plain', tile.textContent);
+    });
+  });
+
+  document.querySelectorAll('.event-card').forEach(card => {
+    card.addEventListener('dragover', e => {
+      e.preventDefault();
+      card.style.backgroundColor = "#f0f9ff";
+    });
+
+    card.addEventListener('dragleave', () => {
+      card.style.backgroundColor = "#ffffff";
+    });
+
+    card.addEventListener('drop', e => {
+      e.preventDefault();
+      card.style.backgroundColor = "#ffffff";
+      const droppedText = e.dataTransfer.getData('text/plain');
+
+      // Append or log agenda item
+      const agenda = document.createElement("div");
+      agenda.textContent = "📝 " + droppedText;
+      agenda.style.marginTop = "6px";
+      agenda.style.fontSize = "13px";
+      agenda.style.color = "#374151";
+      card.appendChild(agenda);
+    });
+  });
+}
+
   </script>
 
 <div id="sidebar">
