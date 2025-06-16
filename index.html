@@ -200,24 +200,6 @@
       }
     }
 
-    async function loadMeetings() {
-      try {
-        const res = await fetch(`${SCRIPT_BASE}?sheetId=${SHEET_ID}&mode=meetings`);
-        const text = await res.text();
-        const data = JSON.parse(text);
-
-        if (!Array.isArray(data) || data.length === 0) {
-          document.getElementById('meetingsTable').textContent = "No meetings found.";
-          return;
-        }
-
-        renderTable(data, "meetingsTable");
-      } catch (err) {
-        document.getElementById('meetingsTable').textContent = "❌ Failed to load meetings.";
-        console.error(err);
-      }
-    }
-
     function renderTable(data, containerId) {
       const table = document.createElement('table');
       const thead = document.createElement('thead');
@@ -338,7 +320,6 @@ function formatDatePretty(isoString) {
     document.addEventListener("DOMContentLoaded", () => {
       loadSubmissions();
       loadGantt();
-      loadMeetings(); // load third tab data
       setupForm();
       loadDomainAndMeetings();
     });
