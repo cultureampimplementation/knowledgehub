@@ -296,6 +296,7 @@ function renderGroupedMeetings(grouped, containerId) {
     grouped[week].forEach(m => {
       const card = document.createElement("div");
       card.className = "event-card";
+      card.title = `Attendees:\n${m.Attendees || "No attendees listed"}`;
       card.innerHTML = `
         <strong>${m.Title}</strong>
         <div>📅 ${formatDatePretty(m["Start Time"])}</div>
