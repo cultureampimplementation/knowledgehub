@@ -118,6 +118,22 @@
 </head>
 <body>
 
+  <div id="loginSection" style="margin-bottom: 20px;">
+  <h2>Please log in</h2>
+
+  <!-- Access Code -->
+  <label for="accessCode">Access Code:</label>
+  <input type="text" id="accessCode" maxlength="6" placeholder="6-digit code" />
+  <button onclick="submitAccessCode()">Submit Code</button>
+
+  <hr style="margin: 20px 0;">
+
+  <!-- Camper Login (Google) -->
+  <button onclick="camperLogin()">Camper Login (Google)</button>
+
+  <div id="loginStatus" style="color: red; margin-top: 10px;"></div>
+  </div>
+
   <h1>Project Hub</h1>
 
   <div>
