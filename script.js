@@ -1,5 +1,6 @@
 // ====== CONFIG ======
-const SHEET_ID = 'PASTE_YOUR_SHEET_ID_HERE';
+const params = new URLSearchParams(window.location.search);
+const SHEET_ID = params.get("sheetId");
 const SCRIPT_URL = 'PASTE_YOUR_SCRIPT_URL_HERE';
 
 // ====== Tabs ======
