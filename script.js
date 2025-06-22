@@ -11,7 +11,8 @@ function renderTable(dataObj, containerId) {
 
   const table = document.createElement("table");
   table.style.borderCollapse = "collapse";
-  table.style.width = "max-content";
+  table.style.width = "100%";
+  table.style.tableLayout = "fixed";
 
   const tbody = document.createElement("tbody");
   rows.forEach((row, rowIndex) => {
