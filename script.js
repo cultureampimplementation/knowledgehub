@@ -1,6 +1,6 @@
 function renderTable(dataObj, containerId) {
   const container = document.getElementById(containerId);
-  const { rows, colWidths = [], rowHeights = [] } = dataObj;
+  const { rows, colWidths = [], rowHeights = [], mergedCells = [] } = dataObj;
 
   if (!rows.length) {
     container.textContent = "No data available.";
@@ -11,15 +11,30 @@ function renderTable(dataObj, containerId) {
 
   const table = document.createElement("table");
   table.style.borderCollapse = "collapse";
-  table.style.width = "100%";
-  table.style.tableLayout = "fixed";
+  table.style.width = "max-content";
 
+  const skipMap = new Map();
   const tbody = document.createElement("tbody");
+
   rows.forEach((row, rowIndex) => {
     const tr = document.createElement("tr");
     if (rowHeights[rowIndex]) tr.style.height = rowHeights[rowIndex] + "px";
 
     headers.forEach((h, colIndex) => {
+      const skipKey = `${rowIndex},${colIndex}`;
+      if (skipMap.has(skipKey)) return;
+
+      const merge = mergedCells.find(m => m.row === rowIndex && m.col === colIndex);
+      if (merge) {
+        for (let r = 0; r < merge.rowspan; r++) {
+          for (let c = 0; c < merge.colspan; c++) {
+            if (r !== 0 || c !== 0) {
+              skipMap.set(`${rowIndex + r},${colIndex + c}`, true);
+            }
+          }
+        }
+      }
+
       const cellData = row[h];
       const td = document.createElement("td");
 
@@ -44,6 +59,11 @@ function renderTable(dataObj, containerId) {
       if (cellData?.fontStyle === "italic") td.style.fontStyle = "italic";
       if (cellData?.fontLine === "underline") td.style.textDecoration = "underline";
       if (cellData?.fontSize) td.style.fontSize = cellData.fontSize + "px";
+
+      if (merge) {
+        if (merge.rowspan > 1) td.rowSpan = merge.rowspan;
+        if (merge.colspan > 1) td.colSpan = merge.colspan;
+      }
 
       tr.appendChild(td);
     });
