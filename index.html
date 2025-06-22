@@ -10,32 +10,35 @@
 <body>
   <h1>Project Hub</h1>
 
-<div id="navTabs" style="margin-bottom: 20px;"></div>
+  <!-- Scrollable container for both tabs and content -->
+  <div id="mainScrollContainer">
+    <div id="navTabs"></div>
 
-  <!-- App Tabs -->
-  <div id="submissions" class="tab-section">
-    <h2>Meeting Agendas</h2>
-    <div id="agendaTiles">
-      <div class="agenda-tile" draggable="true">⏰ Project timeline</div>
-      <div class="agenda-tile" draggable="true">👥 Employee Data</div>
-      <div class="agenda-tile" draggable="true">🧠 Question design</div>
-      <div class="agenda-tile" draggable="true">⚙️ Demographic piping</div>
-      <div class="agenda-tile" draggable="true">🎟️ Kiosk mode</div>
-      <div class="agenda-tile" draggable="true">📊 Report Sharing</div>
-      <div class="agenda-tile" draggable="true">🎓 Report Training</div>
-      <div class="agenda-tile" draggable="true">🏁 Project Debrief</div>
+    <!-- App Tabs -->
+    <div id="submissions" class="tab-section">
+      <h2>Meeting Agendas</h2>
+      <div id="agendaTiles">
+        <div class="agenda-tile" draggable="true">⏰ Project timeline</div>
+        <div class="agenda-tile" draggable="true">👥 Employee Data</div>
+        <div class="agenda-tile" draggable="true">🧠 Question design</div>
+        <div class="agenda-tile" draggable="true">⚙️ Demographic piping</div>
+        <div class="agenda-tile" draggable="true">🎟️ Kiosk mode</div>
+        <div class="agenda-tile" draggable="true">📊 Report Sharing</div>
+        <div class="agenda-tile" draggable="true">🎓 Report Training</div>
+        <div class="agenda-tile" draggable="true">🏁 Project Debrief</div>
+      </div>
+      <form id="myForm">
+        <label>Name: <input name="name" required></label><br><br>
+        <label>Message:<br><textarea name="message" required></textarea></label><br><br>
+        <button type="submit">Send</button>
+      </form>
+      <p id="response"></p>
+      <h3>Previous Questions</h3>
+      <div id="submissionList">Loading...</div>
     </div>
-    <form id="myForm">
-      <label>Name: <input name="name" required></label><br><br>
-      <label>Message:<br><textarea name="message" required></textarea></label><br><br>
-      <button type="submit">Send</button>
-    </form>
-    <p id="response"></p>
-    <h3>Previous Questions</h3>
-    <div id="submissionList">Loading...</div>
   </div>
 
-  <!-- Sidebar -->
+  <!-- Sidebar (remains fixed) -->
   <div id="sidebar">
     <h2>📅 Upcoming Meetings</h2>
     <div id="upcomingMeetings">Loading...</div>
