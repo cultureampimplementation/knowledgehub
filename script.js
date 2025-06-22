@@ -211,7 +211,7 @@ function renderTable(dataObj, containerId) {
 
       td.textContent = cellData?.value ?? "";
       td.style.padding = "1px 10px";
-      td.style.borderBottom = "1px solid #eee";
+      td.style.border = `1px solid ${cellData?.background || "#fff"}`;
 
       // Apply style info
       if (cellData?.background) td.style.backgroundColor = cellData.background;
