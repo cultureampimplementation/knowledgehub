@@ -223,7 +223,14 @@ function renderTable(data, containerId) {
 
   table.appendChild(tbody);
   container.innerHTML = '';
-  container.appendChild(table);
+  const wrapper = document.createElement("div");
+  wrapper.style.overflowX = "auto";
+  wrapper.style.maxWidth = "100%";
+  wrapper.appendChild(table);
+  container.innerHTML = '';
+  container.appendChild(wrapper);
+
+  
 }
 
 
