@@ -197,7 +197,7 @@ function renderTable(dataObj, containerId) {
     th.style.borderBottom = "2px solid #ccc";
     th.style.padding = "8px";
     if (colWidths[colIndex]) th.style.width = colWidths[colIndex] + "px";
-    headerRow.appendChild(th);Add commentMore actions
+    headerRow.appendChild(th);
   });
   thead.appendChild(headerRow);
   table.appendChild(thead);
