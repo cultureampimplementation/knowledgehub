@@ -209,12 +209,12 @@ function renderTable(data, containerId) {
       const td = document.createElement("td");
       const cell = row[h];
 
-      td.textContent = cell.value;
+      td.textContent = cell?.value ?? "";
       td.style.padding = "8px";
       td.style.borderBottom = "1px solid #eee";
-      td.style.backgroundColor = cell.background;
-      td.style.color = cell.fontColor;
-      td.style.fontWeight = cell.fontWeight;
+      td.style.backgroundColor = cell.background || "#fff";
+      td.style.color = cell.fontColor || "#000";
+      td.style.fontWeight = cell.fontWeight || "normal";
       td.style.fontSize = "13px";  // Optional: adjust if you also return fontSize
       tr.appendChild(td);
     });
