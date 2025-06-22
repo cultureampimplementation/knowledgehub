@@ -124,3 +124,93 @@ async function drawGantt() {
     console.error("Failed to draw Gantt chart:", err);
   }
 }
+
+// ====== Dynamic Tabs from Sheet Names ======
+async function loadTabsFromSheet() {
+  try {
+    const res = await fetch(`${SCRIPT_URL}?mode=sheets&sheetId=${SHEET_ID}`);
+    const sheetNames = await res.json();
+
+    const nav = document.getElementById("navTabs");
+    const body = document.body;
+
+    sheetNames.forEach(name => {
+      const tabId = sanitizeId(name);
+
+      // Add tab button
+      const btn = document.createElement("button");
+      btn.textContent = `📄 ${name}`;
+      btn.onclick = () => showTab(tabId);
+      nav.appendChild(btn);
+
+      // Add tab content area
+      const section = document.createElement("div");
+      section.id = tabId;
+      section.className = "tab-section";
+      section.innerHTML = `<h2>${name}</h2><div id="${tabId}-table">Loading...</div>`;
+      body.appendChild(section);
+
+      // Load sheet data into it
+      preloadSheetData(name, tabId);
+    });
+  } catch (err) {
+    console.error("❌ Failed to load dynamic tabs:", err);
+  }
+}
+
+function sanitizeId(name) {
+  return name.toLowerCase().replace(/\s+/g, '_').replace(/[^a-z0-9_]/g, '');
+}
+
+async function preloadSheetData(sheetName, tabId) {
+  try {
+    const res = await fetch(`${SCRIPT_URL}?mode=sheet&sheetId=${SHEET_ID}&sheetName=${encodeURIComponent(sheetName)}`);
+    const data = await res.json();
+    renderTable(data, `${tabId}-table`);
+  } catch (err) {
+    document.getElementById(`${tabId}-table`).textContent = "❌ Failed to load data.";
+  }
+}
+
+function renderTable(data, containerId) {
+  const container = document.getElementById(containerId);
+  if (!data.length) {
+    container.textContent = "No data available.";
+    return;
+  }
+
+  const table = document.createElement("table");
+  table.style.borderCollapse = "collapse";
+  table.style.width = "100%";
+  table.style.marginTop = "10px";
+
+  const thead = document.createElement("thead");
+  const headers = Object.keys(data[0]);
+  const headerRow = document.createElement("tr");
+  headers.forEach(h => {
+    const th = document.createElement("th");
+    th.textContent = h;
+    th.style.borderBottom = "2px solid #ccc";
+    th.style.padding = "8px";
+    headerRow.appendChild(th);
+  });
+  thead.appendChild(headerRow);
+  table.appendChild(thead);
+
+  const tbody = document.createElement("tbody");
+  data.forEach(row => {
+    const tr = document.createElement("tr");
+    headers.forEach(h => {
+      const td = document.createElement("td");
+      td.textContent = row[h];
+      td.style.padding = "8px";
+      td.style.borderBottom = "1px solid #eee";
+      tr.appendChild(td);
+    });
+    tbody.appendChild(tr);
+  });
+  table.appendChild(tbody);
+
+  container.innerHTML = '';
+  container.appendChild(table);
+}
