@@ -243,8 +243,6 @@ function renderTable(dataObj, containerId) {
   const table = document.createElement("table");
   table.style.borderCollapse = "collapse";
   table.style.width = "100%";
-  td.style.overflow = "hidden";
-  td.style.textOverflow = "ellipsis";
   table.style.tableLayout = "fixed";
 
 
@@ -256,6 +254,8 @@ function renderTable(dataObj, containerId) {
     headers.forEach((h, colIndex) => {
       const cellData = row[h];
       const td = document.createElement("td");
+      td.style.overflow = "hidden";
+      td.style.textOverflow = "ellipsis";
 
       if (cellData?.link) {
         const a = document.createElement("a");
