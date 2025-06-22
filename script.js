@@ -149,7 +149,7 @@ async function loadTabsFromSheet() {
       const section = document.createElement("div");
       section.id = tabId;
       section.className = "tab-section";
-      section.innerHTML = `<h2>${name}</h2><div id="${tabId}-table">Loading...</div>`;
+      section.innerHTML = `<div id="${tabId}-table">Loading...</div>`;
       body.appendChild(section);
 
       // Load sheet data into it
