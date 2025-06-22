@@ -3,11 +3,14 @@
 <head>
   <meta charset="UTF-8">
   <title>Project Hub</title>
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+  <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+  <script src="script.js" defer></script>
   <style>
     body {
       font-family: sans-serif;
       padding: 20px;
-      margin-right: 320px; /* Make space for sidebar */
+      margin-right: 320px; /* space for sidebar */
     }
 
     button {
@@ -20,11 +23,6 @@
     .tab-section {
       margin-top: 20px;
       display: none;
-    }
-
-    /* Style for the active tab content */
-    .tab-section.active {
-      display: block;
     }
 
     table, th, td {
@@ -49,6 +47,7 @@
       padding: 20px;
       box-shadow: -2px 0 8px rgba(0, 0, 0, 0.05);
       font-size: 14px;
+      display: none;
     }
 
     #sidebar h2 {
@@ -91,355 +90,58 @@
       display: block;
       margin-bottom: 4px;
     }
-
-    #agendaTiles {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      margin-top: 10px;
-      padding-bottom: 20px; /* Add some space below tiles */
-    }
-
-    .agenda-tile {
-      background: #eef2ff;
-      border: 1px solid #c7d2fe;
-      border-radius: 8px;
-      padding: 8px 12px;
-      cursor: grab;
-      user-select: none;
-      font-size: 14px;
-      transition: background 0.2s;
-    }
-
-    .agenda-tile:active {
-      cursor: grabbing;
-      background: #dbeafe;
-    }
   </style>
 </head>
 <body>
 
-  <div id="mainContent">
-    <h1>Project Hub</h1>
-
-    <div>
-      <button onclick="showTab('submissions')" id="btnSubmissions">❓ Meeting Agendas</button>
-      <button onclick="showTab('gantt')" id="btnGantt">📊 Visual Project Plan</button>
-      <button onclick="showTab('meetings')" id="btnMeetings">⚒️ Project Resources</button>
-    </div>
-
-    <div id="submissions" class="tab-section active"> <h3>Drag agenda items into a meeting</h3>
-      <div id="agendaTiles">
-        <div class="agenda-tile" draggable="true">⏰ Project timeline</div>
-        <div class="agenda-tile" draggable="true">👥 Employee Data</div>
-        <div class="agenda-tile" draggable="true">🧠 Question design</div>
-        <div class="agenda-tile" draggable="true">⚙️ Demographinc branching/piping</div>
-        <div class="agenda-tile" draggable="true">🎟️ Kiosk mode</div>
-        <div class="agenda-tile" draggable="true">📊 Report Sharing</div>
-        <div class="agenda-tile" draggable="true">🎓 Report Training</div>
-        <div class="agenda-tile" draggable="true">🏁 Project Debrief</div>
-      </div>
-      <h2>Add a topic/question!</h2>
-      <form id="myForm">
-        <label>Name: <input name="name" required></label><br><br>
-        <label>Topic/question:<br><textarea name="message" required></textarea></label><br><br>
-        <button type="submit">Send</button>
-      </form>
-      <p id="response"></p>
-
-      <h3>Previous Questions</h3>
-      <div id="submissionList">Loading...</div>
-    </div>
-
-    <div id="gantt" class="tab-section">
-      <h2>Project Timeline</h2>
-      <div id="ganttTable">Loading Gantt chart...</div>
-    </div>
-
-    <div id="meetings" class="tab-section">
-      <h2>Project Resources</h2>
-      <div id="resourcesContent">CAT links...</div> </div>
+  <!-- Navigation Tabs -->
+  <div id="navTabs" style="margin-bottom: 20px;">
+    <button onclick="showTab('submissions')">📝 Meeting Agendas</button>
+    <button onclick="showTab('gantt')">📊 Visual Project Plan</button>
+    <button onclick="showTab('resources')">📂 Project Resources</button>
+    <button onclick="showTab('feedback')">💬 Feedback</button>
+    <button onclick="showTab('actions')">✅ Action Items</button>
   </div>
 
+  <!-- App Tabs -->
+  <div id="submissions" class="tab-section">
+    <h2>Meeting Agendas</h2>
+    <div id="agendaTiles">(agenda tiles go here)</div>
+    <form id="myForm">
+      <label>Name: <input name="name" required></label><br><br>
+      <label>Message:<br><textarea name="message" required></textarea></label><br><br>
+      <button type="submit">Send</button>
+    </form>
+    <p id="response"></p>
+    <h3>Previous Questions</h3>
+    <div id="submissionList">Loading...</div>
+  </div>
+
+  <div id="gantt" class="tab-section">
+    <h2>Project Timeline</h2>
+    <div id="ganttChart" style="width: 100%; height: 500px;">Loading Gantt chart...</div>
+  </div>
+
+  <div id="resources" class="tab-section">
+    <h2>Project Resources</h2>
+    <div id="resourcesTable">Loading resources...</div>
+  </div>
+
+  <div id="feedback" class="tab-section">
+    <h2>Feedback</h2>
+    <div id="feedbackTable">Loading feedback...</div>
+  </div>
+
+  <div id="actions" class="tab-section">
+    <h2>Action Items</h2>
+    <div id="actionsTable">Loading action items...</div>
+  </div>
+
+  <!-- Sidebar -->
   <div id="sidebar">
-    <h2>Upcoming Meetings</h2>
-    <div id="upcomingMeetings">Loading upcoming meetings...</div>
+    <h2>📅 Upcoming Meetings</h2>
+    <div id="upcomingMeetings">Loading...</div>
   </div>
 
-  <script>
-    const params = new URLSearchParams(window.location.search);
-    const SHEET_ID = params.get("sheetId");
-    // Replace with your actual Google Apps Script Web App URL
-    const SCRIPT_BASE = "https://script.google.com/macros/s/AKfycbw9J5AnKEQDozmX5H5-bqe7JM7MWs4VSGiASGFKJ1rCIhPdmz1AStSpGv964pRQsbeuhg/exec";
-
-    // --- Tab Management ---
-    function showTab(tabId) {
-      const sections = document.querySelectorAll(".tab-section");
-      sections.forEach(section => {
-        section.classList.remove('active');
-      });
-      document.getElementById(tabId).classList.add('active');
-    }
-
-    // --- Data Loading Functions ---
-    async function loadSidebarMeetings(domain) {
-      try {
-        const res = await fetch(`${SCRIPT_BASE}?sheetId=${SHEET_ID}&mode=meetings&domain=${encodeURIComponent(domain)}`);
-        if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
-        const meetings = await res.json();
-
-        if (!Array.isArray(meetings) || meetings.length === 0) {
-          document.getElementById('upcomingMeetings').textContent = "No upcoming meetings.";
-          return;
-        }
-
-        const grouped = groupByWeek(meetings);
-        renderGroupedMeetings(grouped, "upcomingMeetings");
-      } catch (err) {
-        console.error("❌ Sidebar meetings failed:", err);
-        document.getElementById('upcomingMeetings').textContent = "❌ Failed to load upcoming meetings. Please try again.";
-      }
-    }
-
-    async function loadSubmissions() {
-      try {
-        const res = await fetch(`${SCRIPT_BASE}?sheetId=${SHEET_ID}`);
-        if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
-        const data = await res.json(); // Direct JSON parsing
-
-        if (data.length === 0) {
-          document.getElementById('submissionList').textContent = "No submissions yet.";
-          return;
-        }
-        renderTable(data, "submissionList");
-      } catch (err) {
-        document.getElementById('submissionList').textContent = "❌ Failed to load submissions. Check your Sheet ID and script deployment.";
-        console.error("Submission loading error:", err);
-      }
-    }
-
-    async function loadGantt() {
-      try {
-        const res = await fetch(`${SCRIPT_BASE}?sheetId=${SHEET_ID}&mode=gantt`);
-        if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
-        const data = await res.json(); // Direct JSON parsing
-
-        if (!Array.isArray(data) || data.length === 0) {
-          document.getElementById('ganttTable').textContent = "No Gantt data available.";
-          return;
-        }
-        renderTable(data, "ganttTable");
-      } catch (err) {
-        document.getElementById('ganttTable').textContent = "❌ Failed to load Gantt chart. Check your Sheet ID and script deployment.";
-        console.error("Gantt loading error:", err);
-      }
-    }
-
-    function renderTable(data, containerId) {
-      const container = document.getElementById(containerId);
-      if (!container) {
-          console.error(`Container with ID '${containerId}' not found.`);
-          return;
-      }
-      container.innerHTML = ''; // Clear previous content
-
-      if (data.length === 0) {
-        container.textContent = "No data to display.";
-        return;
-      }
-
-      const table = document.createElement('table');
-      const thead = document.createElement('thead');
-      const tbody = document.createElement('tbody');
-
-      const headers = Object.keys(data[0]);
-      const headerRow = document.createElement('tr');
-      headers.forEach(h => {
-        const th = document.createElement('th');
-        th.textContent = h;
-        headerRow.appendChild(th);
-      });
-      thead.appendChild(headerRow);
-
-      data.forEach(row => {
-        const tr = document.createElement('tr');
-        headers.forEach(h => {
-          const td = document.createElement('td');
-          td.textContent = row[h];
-          tr.appendChild(td);
-        });
-        tbody.appendChild(tr);
-      });
-
-      table.appendChild(thead);
-      table.appendChild(tbody);
-      container.appendChild(table);
-    }
-
-    // --- Form Submission ---
-    function setupForm() {
-      document.getElementById('myForm').addEventListener('submit', async function (e) {
-        e.preventDefault();
-        const form = e.target;
-        const formData = new FormData(form);
-        formData.append("sheetId", SHEET_ID);
-
-        document.getElementById('response').textContent = "Submitting..."; // User feedback
-
-        try {
-          const res = await fetch(SCRIPT_BASE, {
-            method: "POST",
-            body: formData
-          });
-          if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
-          const text = await res.text();
-          document.getElementById('response').textContent = text;
-          form.reset();
-          loadSubmissions(); // Refresh submissions list after successful post
-        } catch (err) {
-          console.error("❌ Submission failed:", err);
-          document.getElementById('response').textContent = "❌ Submission failed. Please try again.";
-        }
-      });
-    }
-
-    // --- Sidebar Meeting Logic ---
-    async function loadDomainAndMeetings() {
-      try {
-        const res = await fetch(`${SCRIPT_BASE}?sheetId=${SHEET_ID}&mode=domain`);
-        if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
-        const { domain } = await res.json(); // Direct JSON parsing for domain
-        if (!domain) throw new Error("No domain returned from script.");
-        loadSidebarMeetings(domain);
-      } catch (err) {
-        console.error("❌ Failed to load domain for sidebar:", err);
-        document.getElementById("upcomingMeetings").textContent = "❌ Couldn't load domain for meetings. Check script.";
-      }
-    }
-
-    function groupByWeek(meetings) {
-      const weeks = {};
-      meetings.forEach(m => {
-        const start = new Date(m["Start Time"]);
-        // Set to the first day of the week (Sunday in this case)
-        const weekStart = new Date(start.setDate(start.getDate() - start.getDay()));
-        weekStart.setHours(0, 0, 0, 0); // Normalize to start of day
-        const label = weekStart.toISOString().slice(0, 10); //YYYY-MM-DD
-        if (!weeks[label]) weeks[label] = [];
-        weeks[label].push(m);
-      });
-      return weeks;
-    }
-
-    function renderGroupedMeetings(grouped, containerId) {
-      const container = document.getElementById(containerId);
-      container.innerHTML = "";
-
-      const weekLabels = Object.keys(grouped).sort();
-      weekLabels.forEach(week => {
-        const section = document.createElement("div");
-        section.className = "week-group";
-
-        const h3 = document.createElement("h3");
-        h3.textContent = `Week of ${formatDatePretty(week)}`; // Format week label nicely
-        section.appendChild(h3);
-
-        grouped[week].forEach(m => {
-          const card = document.createElement("div");
-          card.className = "event-card";
-          card.title = `Attendees:\n${m.Attendees || "No attendees listed"}`;
-          card.innerHTML = `
-            <strong>${m.Title}</strong>
-            <div>📅 ${formatDateTimePretty(m["Start Time"])}</div>
-            ${m.Location ? `<div>📍 ${m.Location}</div>` : ""}
-          `;
-          section.appendChild(card);
-        });
-        container.appendChild(section);
-      });
-      enableDragAndDrop(); // Re-enable drag and drop after rendering
-    }
-
-    function formatDatePretty(isoString) {
-      const date = new Date(isoString);
-      const options = { weekday: 'short', day: '2-digit', month: 'short' };
-      return date.toLocaleDateString(undefined, options); // uses browser locale
-    }
-
-    function formatDateTimePretty(isoString) {
-      const date = new Date(isoString);
-      const dateOptions = { weekday: 'short', day: '2-digit', month: 'short' };
-      const timeOptions = { hour: '2-digit', minute: '2-digit', hour12: true };
-      const formattedDate = date.toLocaleDateString(undefined, dateOptions);
-      const formattedTime = date.toLocaleTimeString(undefined, timeOptions);
-      return `${formattedDate} at ${formattedTime}`;
-    }
-
-    // --- Drag and Drop Logic ---
-    function enableDragAndDrop() {
-      document.querySelectorAll('.agenda-tile').forEach(tile => {
-        tile.addEventListener('dragstart', e => {
-          e.dataTransfer.setData('text/plain', tile.textContent);
-          e.dataTransfer.effectAllowed = 'copy'; // Indicate that a copy is being made
-        });
-      });
-
-      document.querySelectorAll('.event-card').forEach(card => {
-        card.addEventListener('dragover', e => {
-          e.preventDefault(); // Necessary to allow a drop
-          e.dataTransfer.dropEffect = 'copy';
-          card.style.backgroundColor = "#f0f9ff";
-        });
-
-        card.addEventListener('dragleave', () => {
-          card.style.backgroundColor = "#ffffff";
-        });
-
-        card.addEventListener('drop', e => {
-          e.preventDefault();
-          card.style.backgroundColor = "#ffffff";
-          const droppedText = e.dataTransfer.getData('text/plain');
-
-          // Append agenda item to the card
-          const agenda = document.createElement("div");
-          agenda.textContent = "📝 " + droppedText;
-          agenda.style.marginTop = "6px";
-          agenda.style.fontSize = "13px";
-          agenda.style.color = "#374151";
-          card.appendChild(agenda);
-
-          // --- IMPORTANT: Persistence needs to be implemented here ---
-          // You would typically send an API request to your Google Apps Script
-          // to update the corresponding meeting record with the new agenda item.
-          // Example (conceptual):
-          // updateMeetingAgenda(card.dataset.meetingId, droppedText);
-          console.log(`Dropped "${droppedText}" onto meeting card.`);
-        });
-      });
-    }
-
-    // --- Application Initialization ---
-    function initializeApplication() {
-      // Check if sheetId is provided
-      if (!SHEET_ID) {
-        document.body.innerHTML = "<p style='color:red'>❌ No sheetId provided in the URL. Please add `?sheetId=YOUR_SHEET_ID` to the URL.</p>";
-        console.error("Missing sheetId in URL.");
-        return; // Stop execution if sheetId is missing
-      }
-
-      // Set the initial active tab
-      showTab('submissions');
-
-      // Load data for the main content areas
-      loadSubmissions();
-      loadGantt();
-      setupForm();
-      loadDomainAndMeetings(); // This will also load sidebar meetings
-    }
-
-    // Initialize the application when the DOM is ready
-    document.addEventListener("DOMContentLoaded", initializeApplication);
-
-  </script>
 </body>
 </html>
