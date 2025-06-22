@@ -174,50 +174,61 @@ async function preloadSheetData(sheetName, tabId) {
   }
 }
 
-function renderTable(data, containerId) {
+function renderTable(dataObj, containerId) {
   const container = document.getElementById(containerId);
-  if (!data.length) {
+  const { rows, colWidths = [], wrapSettings = [] } = dataObj;
+
+  if (!rows.length) {
     container.textContent = "No data available.";
     return;
   }
 
+  const headers = Object.keys(rows[0]);
+
   const table = document.createElement("table");
   table.style.borderCollapse = "collapse";
-  table.style.width = "100%";
-  table.style.marginTop = "10px";
+  table.style.width = "max-content";
 
-  const headers = Object.keys(data[0]);
+  const thead = document.createElement("thead");
+  const headerRow = document.createElement("tr");
+  headers.forEach((h, colIndex) => {
+    const th = document.createElement("th");
+    th.textContent = h;
+    th.style.borderBottom = "2px solid #ccc";
+    th.style.padding = "8px";
+    if (colWidths[colIndex]) th.style.width = colWidths[colIndex] + "px";
+    headerRow.appendChild(th);
+  });
+  thead.appendChild(headerRow);
+  table.appendChild(thead);
+
   const tbody = document.createElement("tbody");
-
-  data.forEach(row => {
+  rows.forEach(row => {
     const tr = document.createElement("tr");
-    headers.forEach(h => {
+    headers.forEach((h, colIndex) => {
+      const cellData = row[h];
       const td = document.createElement("td");
-      const cell = row[h];
 
-      td.textContent = cell?.value ?? "";
-      td.style.padding = "1px";
+      td.textContent = cellData?.value ?? "";
+      td.style.padding = "6px 10px";
       td.style.borderBottom = "1px solid #eee";
-      td.style.backgroundColor = cell.background || "#fff";
-      td.style.color = cell.fontColor || "#000";
-      td.style.fontWeight = cell.fontWeight || "normal";
-      td.style.fontSize = "13px";  // Optional: adjust if you also return fontSize
+
+      // Apply style info
+      if (cellData?.background) td.style.backgroundColor = cellData.background;
+      if (cellData?.fontWeight) td.style.fontWeight = cellData.fontWeight;
+      if (cellData?.fontColor) td.style.color = cellData.fontColor;
+      if (wrapSettings[colIndex] === false) td.style.whiteSpace = "nowrap";
+
       tr.appendChild(td);
     });
     tbody.appendChild(tr);
   });
-
   table.appendChild(tbody);
-  container.innerHTML = '';
-  const wrapper = document.createElement("div");
-  wrapper.style.overflowX = "auto";
-  wrapper.style.maxWidth = "100%";
-  wrapper.appendChild(table);
-  container.innerHTML = '';
-  container.appendChild(wrapper);
 
-  
+  container.innerHTML = '';
+  container.appendChild(table);
 }
+
 
 
 function showTab(tabId) {
