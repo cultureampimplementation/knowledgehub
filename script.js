@@ -210,7 +210,7 @@ function renderTable(dataObj, containerId) {
       const td = document.createElement("td");
 
       td.textContent = cellData?.value ?? "";
-      td.style.padding = "6px 10px";
+      td.style.padding = "1px 10px";
       td.style.borderBottom = "1px solid #eee";
 
       // Apply style info
