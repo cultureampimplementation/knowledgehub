@@ -73,8 +73,15 @@ button {
 
 #navTabs {
   display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
+  overflow-x: auto;
+  white-space: nowrap;
+  margin-bottom: 20px;
+  padding-bottom: 4px;
+  scrollbar-width: thin;
+}
+
+#navTabs::-webkit-scrollbar {
+  height: 6px;
 }
 
 #navTabs button:hover {
