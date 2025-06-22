@@ -411,10 +411,12 @@ function formatDatePretty(isoString) {
 
   </script>
 
-<div id="sidebar">
-  <h2>📅 Upcoming Meetings</h2>
-  <div id="upcomingMeetings">Loading...</div>
-</div>
+<style>
+  body > *:not(#loginSection) {
+    display: none;
+  }
+</style>
+
 <style>
   h1, .tab-section, #sidebar {
     display: none;
