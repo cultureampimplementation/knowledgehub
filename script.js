@@ -15,6 +15,7 @@ function showTab(tabId) {
 
 // ====== Submissions ======
 document.addEventListener("DOMContentLoaded", () => {
+  loadTabsFromSheet(); 
   setupForm();
   loadSubmissions();
   loadSidebarMeetings();
