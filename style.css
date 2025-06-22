@@ -71,14 +71,25 @@ button {
   margin-bottom: 4px;
 }
 
-#navTabs {
-  display: flex;
+#mainScrollContainer {
   overflow-x: auto;
+  overflow-y: visible;
+  white-space: nowrap;
+  display: block;
+}
+
+#navTabs {
+  display: inline-flex;
   white-space: nowrap;
   margin-bottom: 20px;
   padding-bottom: 4px;
-  scrollbar-width: thin;
 }
+
+.tab-section {
+  display: none;
+  white-space: nowrap;
+}
+
 
 #navTabs::-webkit-scrollbar {
   height: 6px;
@@ -123,4 +134,9 @@ th, td {
   white-space: nowrap; /* prevent text from wrapping */
 }
 
-
+#mainScrollContainer {
+  overflow-x: auto;
+  overflow-y: visible;
+  white-space: nowrap;
+  display: block;
+}
