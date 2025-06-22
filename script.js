@@ -186,21 +186,7 @@ function renderTable(data, containerId) {
   table.style.width = "100%";
   table.style.marginTop = "10px";
 
-  const thead = document.createElement("thead");
   const headers = Object.keys(data[0]);
-  const headerRow = document.createElement("tr");
-
-  headers.forEach(h => {
-    const th = document.createElement("th");
-    th.textContent = h;
-    th.style.borderBottom = "2px solid #ccc";
-    th.style.padding = "8px";
-    headerRow.appendChild(th);
-  });
-
-  thead.appendChild(headerRow);
-  table.appendChild(thead);
-
   const tbody = document.createElement("tbody");
 
   data.forEach(row => {
