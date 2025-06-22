@@ -8,6 +8,9 @@ function showTab(tabId) {
   document.querySelectorAll(".tab-section").forEach(el => {
     el.style.display = el.id === tabId ? "block" : "none";
   });
+  // Always show sidebar
+  const sidebar = document.getElementById("sidebar");
+  if (sidebar) sidebar.style.display = "block";
 }
 
 // ====== Submissions ======
