@@ -189,6 +189,7 @@ function renderTable(data, containerId) {
   const thead = document.createElement("thead");
   const headers = Object.keys(data[0]);
   const headerRow = document.createElement("tr");
+
   headers.forEach(h => {
     const th = document.createElement("th");
     th.textContent = h;
@@ -196,26 +197,35 @@ function renderTable(data, containerId) {
     th.style.padding = "8px";
     headerRow.appendChild(th);
   });
+
   thead.appendChild(headerRow);
   table.appendChild(thead);
 
   const tbody = document.createElement("tbody");
+
   data.forEach(row => {
     const tr = document.createElement("tr");
     headers.forEach(h => {
       const td = document.createElement("td");
-      td.textContent = row[h];
+      const cell = row[h];
+
+      td.textContent = cell.value;
       td.style.padding = "8px";
       td.style.borderBottom = "1px solid #eee";
+      td.style.backgroundColor = cell.background;
+      td.style.color = cell.fontColor;
+      td.style.fontWeight = cell.fontWeight;
+      td.style.fontSize = "13px";  // Optional: adjust if you also return fontSize
       tr.appendChild(td);
     });
     tbody.appendChild(tr);
   });
-  table.appendChild(tbody);
 
+  table.appendChild(tbody);
   container.innerHTML = '';
   container.appendChild(table);
 }
+
 
 function showTab(tabId) {
   document.querySelectorAll(".tab-section").forEach(el => {
