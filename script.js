@@ -141,6 +141,7 @@ async function loadTabsFromSheet() {
       // Add tab button
       const btn = document.createElement("button");
       btn.textContent = `📄 ${name}`;
+      btn.dataset.tab = tabId;
       btn.onclick = () => showTab(tabId);
       nav.appendChild(btn);
 
