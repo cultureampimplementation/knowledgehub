@@ -215,3 +215,17 @@ function renderTable(data, containerId) {
   container.innerHTML = '';
   container.appendChild(table);
 }
+
+function showTab(tabId) {
+  document.querySelectorAll(".tab-section").forEach(el => {
+    el.style.display = el.id === tabId ? "block" : "none";
+  });
+
+  // Mark the active button
+  document.querySelectorAll("#navTabs button").forEach(btn => {
+    btn.classList.toggle("active", btn.dataset.tab === tabId);
+  });
+
+  const sidebar = document.getElementById("sidebar");
+  if (sidebar) sidebar.style.display = "block";
+}
