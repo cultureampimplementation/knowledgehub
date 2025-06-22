@@ -1,7 +1,7 @@
 // ====== CONFIG ======
 const params = new URLSearchParams(window.location.search);
 const SHEET_ID = params.get("sheetId");
-const SCRIPT_URL = 'PASTE_YOUR_SCRIPT_URL_HERE';
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw9J5AnKEQDozmX5H5-bqe7JM7MWs4VSGiASGFKJ1rCIhPdmz1AStSpGv964pRQsbeuhg/exec';
 
 // ====== Tabs ======
 function showTab(tabId) {
