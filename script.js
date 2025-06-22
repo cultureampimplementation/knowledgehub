@@ -196,7 +196,7 @@ function renderTable(data, containerId) {
       const cell = row[h];
 
       td.textContent = cell?.value ?? "";
-      td.style.padding = "2px";
+      td.style.padding = "1px";
       td.style.borderBottom = "1px solid #eee";
       td.style.backgroundColor = cell.background || "#fff";
       td.style.color = cell.fontColor || "#000";
