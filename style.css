@@ -103,3 +103,14 @@ button {
   font-weight: 600;
 }
 
+table {
+  border-collapse: collapse;
+  width: max-content; /* ensures it grows as needed */
+  min-width: 100%;
+}
+
+th, td {
+  white-space: nowrap; /* prevent text from wrapping */
+}
+
+
