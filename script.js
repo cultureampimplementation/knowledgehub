@@ -189,19 +189,6 @@ function renderTable(dataObj, containerId) {
   table.style.borderCollapse = "collapse";
   table.style.width = "max-content";
 
-  const thead = document.createElement("thead");
-  const headerRow = document.createElement("tr");
-  headers.forEach((h, colIndex) => {
-    const th = document.createElement("th");
-    th.textContent = h;
-    th.style.borderBottom = "2px solid #ccc";
-    th.style.padding = "8px";
-    if (colWidths[colIndex]) th.style.width = colWidths[colIndex] + "px";
-    headerRow.appendChild(th);
-  });
-  thead.appendChild(headerRow);
-  table.appendChild(thead);
-
   const tbody = document.createElement("tbody");
   rows.forEach(row => {
     const tr = document.createElement("tr");
